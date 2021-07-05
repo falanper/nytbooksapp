@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Books</string>
+
+    <!-- Books Activity -->
+    <string name="books_title">Books | The NY Times</string>
+    <string name="books_error_401">Não Autorizado</string>
+    <string name="books_error_400_generic">Erro Não Tratado</string>
+    <string name="books_error_500_generic">Erro Catastrófico</string>
+
+    <!-- Book Details Activity -->
+    <string name="book_details_title">Book Details</string>
+    <string name="book_details_title_label">Title</string>
+    <string name="book_details_description_label">Description</string>
+
+</resources>

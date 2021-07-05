@@ -1,0 +1,63 @@
+package com.falanper.nybooksapp.presentation.books
+
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.falanper.nybooksapp.R
+import com.falanper.nybooksapp.data.ApiService
+import com.falanper.nybooksapp.data.model.Book
+import com.falanper.nybooksapp.data.response.BookBodyResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
+class BooksViewModel : ViewModel() {
+
+    val booksLiveData: MutableLiveData<List<Book>> = MutableLiveData()
+    val viewFlipperLiveData: MutableLiveData<Pair<Int, Int?>> = MutableLiveData()
+
+    fun getBooks() {
+        ApiService.service.getBooks().enqueue(object : Callback<BookBodyResponse> {
+            override fun onResponse(
+                call: Call<BookBodyResponse>,
+                response: Response<BookBodyResponse>
+            ) {
+                when {
+                    response.isSuccessful -> {
+                        val books: MutableList<Book> = mutableListOf()
+
+                        response.body()?.let { bookBodyResponse ->
+                            for (result in bookBodyResponse.bookResults) {
+                                val book = Book(
+                                    title = result.bookDetails[0].title,
+                                    author = result.bookDetails[0].author,
+                                    description = result.bookDetails[0].description
+                                )
+                                books.add(book)
+                            }
+                        }
+                        booksLiveData.value = books
+                        viewFlipperLiveData.value = Pair(VIEW_FLIPPER_BOOKS, null)
+                    }
+                    response.code() == 401 -> {
+                        viewFlipperLiveData.value =
+                            Pair(VIEW_FLIPPER_ERROR, R.string.books_error_401)
+                    }
+                    else -> {
+                        viewFlipperLiveData.value =
+                            Pair(VIEW_FLIPPER_ERROR, R.string.books_error_400_generic)
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<BookBodyResponse>, t: Throwable) {
+                viewFlipperLiveData.value =
+                    Pair(VIEW_FLIPPER_ERROR, R.string.books_error_500_generic)
+            }
+        })
+    }
+
+    companion object {
+        private const val VIEW_FLIPPER_BOOKS = 1
+        private const val VIEW_FLIPPER_ERROR = 2
+    }
+}
